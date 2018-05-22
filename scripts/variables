@@ -13,32 +13,24 @@ rclone_config="--config=/config/rclone.conf"
 rclone_options="${rclone_config} --buffer-size $(printenv BUFFER_SIZE) --checkers $(printenv CHECKERS)"
 rclone_mount_options="${rclone_options} --allow-non-empty --allow-other --max-read-ahead $(printenv MAX_READ_AHEAD) --uid ${_puid:-911} --gid ${_pgid:-911}"
 
-PLEXDRIVE_CACHE_FILE="/cache/cache.bolt"
-PLEXDRIVE_CHECK_THREADS=4
-PLEXDRIVE_CHUNK_LOAD_AHEAD=7
-PLEXDRIVE_LOAD_THREADS=4
-PLEXDRIVE_MAX_CHUNKS=16
-PLEXDRIVE_REFRESH_INTERVAL="1m0s"
-PLEXDRIVE_ROOT_NODE_ID="root"
-PLEXDRIVE_VERBOSITY=2
-
 plexdrive_options="\
+  mount \
   --config=/config \
   --root-node-id=$(printenv PLEXDRIVE_ROOT_NODE_ID) \
   --verbosity=$(printenv PLEXDRIVE_VERBOSITY) \
   --cache-file=$(printenv PLEXDRIVE_CACHE_FILE) \
-  --chunk-check-threads=$(printenv PLEXDRIVE_CHECK_THREADS) \
-  --chunk-load-ahead=$(printenv PLEXDRIVE_LOAD_AHEAD) \
-  --chunk-load-threads=$(printenv PLEXDRIVE_LOAD_THREADS) \
+  --chunk-check-threads=$(printenv PLEXDRIVE_CHUNK_CHECK_THREADS) \
+  --chunk-load-ahead=$(printenv PLEXDRIVE_CHUNK_LOAD_AHEAD) \
+  --chunk-load-threads=$(printenv PLEXDRIVE_CHUNK_LOAD_THREADS) \
   --max-chunks=$(printenv PLEXDRIVE_MAX_CHUNKS) \
   --chunk-size=$(printenv PLEXDRIVE_CHUNK_SIZE) \
   --refresh-interval=$(printenv PLEXDRIVE_REFRESH_INTERVAL) \
   --uid=${_puid:-911} \
   --gid=${_pgid:-911} \
   -o allow_other"
-if [ ! -z $(printenv CLEAR_CHUNK_MAX_SIZE) ]; then
-    plexdrive_options="${plexdrive_options} --clear-chunk-max-size=$(printenv CLEAR_CHUNK_MAX_SIZE)"
-fi
+#if [ ! -z $(printenv CLEAR_CHUNK_MAX_SIZE) ]; then
+#    plexdrive_options="${plexdrive_options} --clear-chunk-max-size=$(printenv CLEAR_CHUNK_MAX_SIZE)"
+#fi
 
 if [ "$(printenv READ_ONLY)" != "0" ]; then
     rclone_mount_options="${rclone_mount_options} --read-only"
@@ -49,6 +41,11 @@ ufs_options="-o uid=${_puid:-911} -o gid=${_pgid:-911} -o cow,allow_other,direct
 
 rclone_cloud_endpoint=$(printenv RCLONE_CLOUD_ENDPOINT | tr -d '"' | tr -d "'")
 rclone_local_endpoint=$(printenv RCLONE_LOCAL_ENDPOINT | tr -d '"' | tr -d "'")
+
+cache_dir="/cache"
+if [ ! -d "${cache_dir}" ]; then
+   mkdir -p "${cache_dir}"
+fi
 
 log_dir="/log"
 if [ ! -d "${log_dir}" ]; then
