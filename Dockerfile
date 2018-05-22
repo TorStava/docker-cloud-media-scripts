@@ -48,9 +48,15 @@ ENV RCLONE_CLOUD_ENDPOINT "gd-crypt:"
 ENV RCLONE_LOCAL_ENDPOINT "local-crypt:"
 
 # Plexdrive
-ENV CHUNK_SIZE "10M"
-ENV CLEAR_CHUNK_MAX_SIZE ""
-ENV CLEAR_CHUNK_AGE "24h"
+ENV PLEXDRIVE_CACHE_FILE="/cache/cache.bolt"
+ENV PLEXDRIVE_CHECK_THREADS=4
+ENV PLEXDRIVE_CHUNK_LOAD_AHEAD=7
+ENV PLEXDRIVE_LOAD_THREADS=4
+ENV PLEXDRIVE_MAX_CHUNKS=16
+ENV PLEXDRIVE_REFRESH_INTERVAL="1m0s"
+ENV PLEXDRIVE_ROOT_NODE_ID="root"
+ENV PLEXDRIVE_VERBOSITY=2
+ENV PLEXDRIVE_CHUNK_SIZE "10M"
 
 # Time format
 ENV DATE_FORMAT "+%F@%T"
@@ -88,17 +94,16 @@ RUN chmod a+x /install.sh && \
 # VOLUMES
 ####################
 # Define mountable directories.
-#VOLUME /data/db /config /cloud-encrypt /cloud-decrypt /local-decrypt /local-media /chunks /log
-VOLUME /data/db /cloud-encrypt /cloud-decrypt /local-decrypt /local-media /chunks /log
+VOLUME /cloud-encrypt /cloud-decrypt /local-decrypt /local-media /cache /log
 
 
-RUN chmod -R 777 /data /log && \
+RUN chmod -R 777 /log /cache && \
     mkdir /config
 
 ####################
 # WORKING DIRECTORY
 ####################
-WORKDIR /data
+WORKDIR /
 
 
 ####################
